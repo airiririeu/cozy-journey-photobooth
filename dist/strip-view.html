@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Photo strip</title>
+    <title>Your Strip</title>
     <style>
       * {
         box-sizing: border-box;
@@ -16,8 +16,8 @@
         align-items: center;
         gap: 1rem;
         padding: 1.5rem 1rem;
-        background: #0f172a;
-        color: #cbd5e1;
+        background: linear-gradient(165deg, #1a2e24 0%, #2a2438 100%);
+        color: #e8f0ea;
         font-family: ui-sans-serif, system-ui, sans-serif;
       }
       #hint {
@@ -101,7 +101,7 @@
               var url = URL.createObjectURL(blob);
               img.onload = function () {
                 hint.innerHTML =
-                  'Right-click the strip → <strong style="color:#fff">Save Image As…</strong>';
+                  'Right-click the strip → <strong style="color:#d4c2ef">Save Image As…</strong>';
                 wrap.hidden = false;
               };
               img.onerror = function () {

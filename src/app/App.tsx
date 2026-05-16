@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router';
 import { LandingPage } from './components/LandingPage';
 import { SetupOverlay } from './components/SetupOverlay';
 import { CapturePage } from './components/CapturePage';
 import { ResultPage } from './components/ResultPage';
+import { StripSavePage } from './components/StripSavePage';
 import type { LayoutType, Photo } from './types';
 import { maxPhotosForLayout } from './types';
 import { canvasToPngBlob } from './lib/downloadBlob';
 import { clearStripPngBlob, stashStripPngBlob } from './lib/stripExportDb';
+import { isStripUploadConfigured, uploadStripPng } from './lib/uploadStrip';
 
 type Phase = 'landing' | 'capture' | 'result';
 
@@ -21,6 +24,9 @@ function BoothApp() {
   const stripRef = useRef<HTMLDivElement>(null);
   const stripPngBlobRef = useRef<Blob | null>(null);
   const [stripPreviewUrl, setStripPreviewUrl] = useState<string | null>(null);
+  const [stripSaveUrl, setStripSaveUrl] = useState<string | null>(null);
+  const [stripUploading, setStripUploading] = useState(false);
+  const [stripUploadError, setStripUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (phase !== 'result') {
@@ -29,6 +35,9 @@ function BoothApp() {
         if (prev) URL.revokeObjectURL(prev);
         return null;
       });
+      setStripSaveUrl(null);
+      setStripUploading(false);
+      setStripUploadError(null);
       void clearStripPngBlob();
     }
   }, [phase]);
@@ -78,6 +87,20 @@ function BoothApp() {
         if (prev) URL.revokeObjectURL(prev);
         return url;
       });
+
+      if (isStripUploadConfigured()) {
+        setStripUploading(true);
+        setStripUploadError(null);
+        try {
+          const { saveUrl } = await uploadStripPng(pngBlob);
+          setStripSaveUrl(saveUrl);
+        } catch (err) {
+          console.error(err);
+          setStripUploadError('Could not upload strip for QR save. Try “Open strip to save” instead.');
+        } finally {
+          setStripUploading(false);
+        }
+      }
     } catch (err) {
       console.error(err);
     }
@@ -167,6 +190,10 @@ function BoothApp() {
           layout={layout}
           photos={photos}
           stripPreviewUrl={stripPreviewUrl}
+          stripSaveUrl={stripSaveUrl}
+          stripUploading={stripUploading}
+          stripUploadError={stripUploadError}
+          qrEnabled={isStripUploadConfigured()}
           onStripPrintComplete={handleStripPrintComplete}
           onOpenStripViewer={handleOpenStripViewer}
           onNewStrip={handleNewStrip}
@@ -176,6 +203,19 @@ function BoothApp() {
   );
 }
 
+function routerBasename(): string | undefined {
+  const base = import.meta.env.BASE_URL ?? '/';
+  const trimmed = base.replace(/\/$/, '');
+  return trimmed || undefined;
+}
+
 export default function App() {
-  return <BoothApp />;
+  return (
+    <BrowserRouter basename={routerBasename()}>
+      <Routes>
+        <Route path="/" element={<BoothApp />} />
+        <Route path="/save/:stripId" element={<StripSavePage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }

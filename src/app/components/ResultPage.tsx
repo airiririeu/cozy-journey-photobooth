@@ -4,6 +4,7 @@ import type { LayoutType, Photo } from '../types';
 import { getStripLayout } from '../types';
 import { printingSoundSrc } from '../lib/sfx';
 import { PhotoStrip } from './PhotoStrip';
+import { StripQrPanel } from './StripQrPanel';
 import blueboothBg from './images/bluebooth-bg.png';
 
 interface ResultPageProps {
@@ -12,6 +13,10 @@ interface ResultPageProps {
   photos: Photo[];
   /** Object URL of the full strip PNG — lets guests use the browser’s “Save Image As…” menu. */
   stripPreviewUrl: string | null;
+  stripSaveUrl: string | null;
+  stripUploading: boolean;
+  stripUploadError: string | null;
+  qrEnabled: boolean;
   onStripPrintComplete: () => void | Promise<void>;
   onOpenStripViewer: () => void | Promise<void>;
   onNewStrip: () => void;
@@ -22,6 +27,10 @@ export function ResultPage({
   layout,
   photos,
   stripPreviewUrl,
+  stripSaveUrl,
+  stripUploading,
+  stripUploadError,
+  qrEnabled,
   onStripPrintComplete,
   onOpenStripViewer,
   onNewStrip,
@@ -90,7 +99,7 @@ export function ResultPage({
         backgroundRepeat: 'repeat',
       }}
     >
-      <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8">
         <header className="text-center">
           <h1 className="text-4xl drop-shadow-sm">
             {stripReady ? 'Your strip is ready!' : 'Printing your strip…'}
@@ -102,16 +111,18 @@ export function ResultPage({
           </p>
         </header>
 
-        <div className="relative w-full max-w-md">
-          <div className="rounded-3xl border-4 border-primary/45 bg-gradient-to-b from-secondary/55 via-primary/25 to-secondary/55 p-5 shadow-[0_24px_48px_rgba(62,90,72,0.18)]">
-            <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
-              {stripReady ? 'Output tray' : 'Printing'}
-            </p>
+        <div className="flex w-full flex-col items-stretch justify-center gap-8 lg:flex-row lg:items-start lg:gap-10">
+          <div className="flex flex-1 justify-center lg:justify-end">
+            <div className="relative w-full max-w-md">
+              <div className="rounded-3xl border-4 border-primary/45 bg-gradient-to-b from-secondary/55 via-primary/25 to-secondary/55 p-5 shadow-[0_24px_48px_rgba(62,90,72,0.18)]">
+                <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+                  {stripReady ? 'Output tray' : 'Printing'}
+                </p>
 
-            <div
-              className="relative mx-auto mt-4 overflow-hidden rounded-md bg-foreground/15 shadow-[inset_0_6px_16px_rgba(61,53,80,0.35)]"
-              style={{ width: stripWidth, height: totalHeight }}
-            >
+                <div
+                  className="relative mx-auto mt-4 overflow-hidden rounded-md bg-foreground/15 shadow-[inset_0_6px_16px_rgba(61,53,80,0.35)]"
+                  style={{ width: stripWidth, height: totalHeight }}
+                >
               {printAnimMs === null ? (
                 <div className="flex size-full items-center justify-center bg-foreground/25">
                   <span className="text-sm font-medium text-primary-foreground/90">Preparing printer…</span>
@@ -168,11 +179,45 @@ export function ResultPage({
                   )}
                 </>
               )}
+                </div>
+              </div>
             </div>
           </div>
+
+          {qrEnabled ? (
+            <div className="flex flex-1 flex-col items-center justify-center lg:items-start lg:pt-2">
+              {stripReady ? (
+                stripSaveUrl ? (
+                  <StripQrPanel saveUrl={stripSaveUrl} />
+                ) : stripUploading ? (
+                  <div className="flex w-full max-w-xs flex-col items-center justify-center rounded-3xl border-2 border-border/80 bg-card/90 px-5 py-10 shadow-sm backdrop-blur-sm">
+                    <p className="text-center text-sm text-muted-foreground">
+                      Preparing QR code for your phone…
+                    </p>
+                  </div>
+                ) : stripUploadError ? (
+                  <div className="flex w-full max-w-xs flex-col items-center justify-center rounded-3xl border-2 border-destructive/40 bg-card/90 px-5 py-8 shadow-sm backdrop-blur-sm">
+                    <p className="text-center text-sm text-destructive">{stripUploadError}</p>
+                  </div>
+                ) : (
+                  <div className="flex w-full max-w-xs flex-col items-center justify-center rounded-3xl border-2 border-dashed border-border/60 bg-card/50 px-5 py-10">
+                    <p className="text-center text-sm text-muted-foreground">
+                      QR code will appear when your strip is ready
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div className="flex w-full max-w-xs flex-col items-center justify-center rounded-3xl border-2 border-dashed border-border/60 bg-card/50 px-5 py-10">
+                  <p className="text-center text-sm text-muted-foreground">
+                    Scan here to save on your phone
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
-        <div className="flex w-full max-w-md flex-col items-center gap-4">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <button
             type="button"
             disabled={!stripPreviewUrl}
