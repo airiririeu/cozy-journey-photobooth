@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { LayoutType, Photo } from '../types';
 import { captureFrameFromVideo } from '../lib/captureFrame';
 import { getStripLayout, maxPhotosForLayout } from '../types';
-import blueboothBg from './images/bluebooth-bg.png';
+import { BoothPageShell } from './BoothPageShell';
 import snapButtonImg from '../../../cozy-photobooth/snap-button.png';
 import snapButtonHoverImg from '../../../cozy-photobooth/snap-button-hover.png';
 import { playShutterSound } from '../lib/sfx';
@@ -185,20 +185,13 @@ export function CapturePage({
   ]);
 
   return (
-    <div
-      className="relative min-h-screen w-full overflow-hidden text-foreground"
-      style={{
-        backgroundImage: `url(${blueboothBg})`,
-        backgroundSize: '1440px 1024px',
-        backgroundRepeat: 'repeat',
-      }}
-    >
+    <BoothPageShell className="overflow-hidden">
       {STICKER_SRC.map((src, i) => (
         <img
           key={src}
           src={src}
           alt=""
-          className="pointer-events-none absolute opacity-90 drop-shadow-lg select-none"
+          className="pointer-events-none absolute hidden opacity-90 drop-shadow-lg select-none sm:block"
           style={{
             width: `${64 + (i % 3) * 18}px`,
             top: `${12 + i * 18}%`,
@@ -213,24 +206,24 @@ export function CapturePage({
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/50 to-transparent" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[min(96vw,88rem)] flex-col items-center px-4 pb-8 pt-4">
-        <div className="flex w-full max-w-[min(94vw,80rem)] items-center justify-between gap-3">
+      <div className="relative z-10 mx-auto flex w-full max-w-[min(96vw,88rem)] flex-col items-center px-3 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4 sm:pb-8 sm:pt-4">
+        <div className="flex w-full max-w-[min(94vw,80rem)] items-center justify-between gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-white/80 bg-white/70 px-4 py-2 text-xl shadow-sm backdrop-blur transition hover:bg-white"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border-2 border-white/80 bg-white/70 px-3 py-1.5 text-base shadow-sm backdrop-blur transition hover:bg-white sm:gap-2 sm:px-4 sm:py-2 sm:text-xl"
           >
-            <ArrowLeft className="h-5 w-5" aria-hidden />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
             Home
           </button>
-          <p className="text-right text-2xl text-foreground drop-shadow-sm">
+          <p className="text-right text-lg text-foreground drop-shadow-sm sm:text-2xl">
             {photoCount}/{maxPhotos} snaps
           </p>
         </div>
 
-        <div className="mt-6 flex w-full flex-col items-center justify-center gap-6 lg:flex-row lg:flex-nowrap lg:items-start lg:justify-center lg:gap-10 xl:gap-12">
-          <div className="mx-auto w-full max-w-[min(100%,40rem)] shrink-0 sm:max-w-[min(100%,44rem)] lg:mx-0 lg:w-[min(100%,92vw,48rem)] lg:max-w-[48rem] xl:w-[min(100%,92vw,52rem)] xl:max-w-[52rem]">
-            <div className="relative overflow-hidden rounded-[2rem] border-4 border-white bg-black/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
+        <div className="mt-4 flex w-full flex-col items-center justify-center gap-5 sm:mt-6 sm:gap-6 md:flex-row md:flex-nowrap md:items-start md:justify-center md:gap-8 lg:gap-10 xl:gap-12">
+          <div className="mx-auto w-full max-w-[min(100%,40rem)] shrink-0 sm:max-w-[min(100%,44rem)] md:mx-0 md:w-[min(100%,92vw,48rem)] md:max-w-[48rem] xl:w-[min(100%,92vw,52rem)] xl:max-w-[52rem]">
+            <div className="relative overflow-hidden rounded-2xl border-4 border-white bg-black/10 shadow-[0_20px_60px_rgba(0,0,0,0.18)] sm:rounded-[2rem]">
               {cameraError ? (
                 <div className="flex aspect-video min-h-[200px] w-full items-center justify-center bg-white/80 p-6 text-center text-xl">
                   {cameraError}
@@ -292,7 +285,7 @@ export function CapturePage({
 
               {countdown !== null && (
                 <div className="absolute inset-0 z-[20] flex items-center justify-center bg-black/35 backdrop-blur-[2px]">
-                  <span className="text-8xl font-normal text-white drop-shadow-lg">{countdown}</span>
+                  <span className="text-6xl font-normal text-white drop-shadow-lg sm:text-8xl">{countdown}</span>
                 </div>
               )}
 
@@ -309,7 +302,7 @@ export function CapturePage({
             </div>
           </div>
 
-          <div className="flex w-full max-w-lg shrink-0 flex-col items-center gap-4 lg:w-[min(100%,20rem)] lg:max-w-none xl:w-[22rem]">
+          <div className="flex w-full max-w-lg shrink-0 flex-col items-center gap-4 md:w-[min(100%,20rem)] md:max-w-none xl:w-[22rem]">
             <div className="flex w-full flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-8">
               <div className={stripProgressWrapClass}>
                 <p className="text-center text-xs font-medium leading-tight text-foreground drop-shadow-sm sm:text-left sm:text-sm">
@@ -430,6 +423,6 @@ export function CapturePage({
           }
         }
       `}</style>
-    </div>
+    </BoothPageShell>
   );
 }

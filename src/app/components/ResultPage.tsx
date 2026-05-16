@@ -3,9 +3,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { LayoutType, Photo } from '../types';
 import { getStripLayout } from '../types';
 import { printingSoundSrc } from '../lib/sfx';
+import { BoothPageShell } from './BoothPageShell';
 import { PhotoStrip } from './PhotoStrip';
+import { ScaledStripViewport } from './ScaledStripViewport';
 import { StripQrPanel } from './StripQrPanel';
-import blueboothBg from './images/bluebooth-bg.png';
 
 interface ResultPageProps {
   stripRef: RefObject<HTMLDivElement | null>;
@@ -91,36 +92,30 @@ export function ResultPage({
   }, [stripReady, onStripPrintComplete]);
 
   return (
-    <div
-      className="relative min-h-screen w-full px-4 py-10 text-foreground"
-      style={{
-        backgroundImage: `url(${blueboothBg})`,
-        backgroundSize: '1440px 1024px',
-        backgroundRepeat: 'repeat',
-      }}
-    >
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8">
-        <header className="text-center">
-          <h1 className="text-4xl drop-shadow-sm">
+    <BoothPageShell className="px-3 py-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-4 sm:py-10">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-6 sm:gap-8">
+        <header className="max-w-2xl px-1 text-center">
+          <h1 className="text-2xl drop-shadow-sm sm:text-3xl md:text-4xl">
             {stripReady ? 'Your strip is ready!' : 'Printing your strip…'}
           </h1>
-          <p className="mt-2 text-xl text-muted-foreground">
+          <p className="mt-2 text-base text-muted-foreground sm:text-lg md:text-xl">
             {stripReady
               ? 'Save it, share it, or snap a whole new strip.'
               : 'Hold on — your photos are rolling out of the booth.'}
           </p>
         </header>
 
-        <div className="flex w-full flex-col items-stretch justify-center gap-8 lg:flex-row lg:items-start lg:gap-10">
-          <div className="flex flex-1 justify-center lg:justify-end">
-            <div className="relative w-full max-w-md">
-              <div className="rounded-3xl border-4 border-primary/45 bg-gradient-to-b from-secondary/55 via-primary/25 to-secondary/55 p-5 shadow-[0_24px_48px_rgba(62,90,72,0.18)]">
-                <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+        <div className="flex w-full flex-col items-stretch justify-center gap-6 md:flex-row md:items-start md:gap-8 lg:gap-10">
+          <div className="flex flex-1 justify-center md:justify-end">
+            <div className="relative w-full max-w-md px-1">
+              <div className="rounded-2xl border-4 border-primary/45 bg-gradient-to-b from-secondary/55 via-primary/25 to-secondary/55 p-4 shadow-[0_24px_48px_rgba(62,90,72,0.18)] sm:rounded-3xl sm:p-5">
+                <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground sm:tracking-[0.25em]">
                   {stripReady ? 'Output tray' : 'Printing'}
                 </p>
 
+                <ScaledStripViewport width={stripWidth} height={totalHeight}>
                 <div
-                  className="relative mx-auto mt-4 overflow-hidden rounded-md bg-foreground/15 shadow-[inset_0_6px_16px_rgba(61,53,80,0.35)]"
+                  className="relative overflow-hidden rounded-md bg-foreground/15 shadow-[inset_0_6px_16px_rgba(61,53,80,0.35)]"
                   style={{ width: stripWidth, height: totalHeight }}
                 >
               {printAnimMs === null ? (
@@ -180,12 +175,13 @@ export function ResultPage({
                 </>
               )}
                 </div>
+                </ScaledStripViewport>
               </div>
             </div>
           </div>
 
           {qrEnabled ? (
-            <div className="flex flex-1 flex-col items-center justify-center lg:items-start lg:pt-2">
+            <div className="flex flex-1 flex-col items-center justify-center px-1 md:items-start md:justify-start md:pt-2">
               {stripReady ? (
                 stripSaveUrl ? (
                   <StripQrPanel saveUrl={stripSaveUrl} />
@@ -217,14 +213,14 @@ export function ResultPage({
           ) : null}
         </div>
 
-        <div className="flex w-full max-w-2xl flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <div className="flex w-full max-w-2xl flex-col items-stretch gap-3 px-1 sm:flex-row sm:justify-center sm:gap-4">
           <button
             type="button"
             disabled={!stripPreviewUrl}
             onClick={() => {
               void onOpenStripViewer();
             }}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-secondary bg-secondary px-6 py-3 text-xl font-semibold text-secondary-foreground shadow-sm backdrop-blur-sm transition hover:bg-secondary/40 disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto sm:min-w-[280px]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-secondary bg-secondary px-5 py-2.5 text-lg font-semibold text-secondary-foreground shadow-sm backdrop-blur-sm transition hover:bg-secondary/40 disabled:cursor-not-allowed disabled:opacity-45 sm:min-w-[240px] sm:flex-1 sm:px-6 sm:py-3 sm:text-xl md:flex-none md:min-w-[280px]"
           >
             Open strip to save
           </button>
@@ -232,7 +228,7 @@ export function ResultPage({
             type="button"
             onClick={onNewStrip}
             disabled={!stripReady}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-border bg-card px-6 py-3 text-2xl text-foreground shadow-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto sm:min-w-[240px]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-xl text-foreground shadow-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-45 sm:min-w-[200px] sm:flex-1 sm:px-6 sm:py-3 sm:text-2xl md:flex-none md:min-w-[240px]"
           >
             Another strip
           </button>
@@ -249,6 +245,6 @@ export function ResultPage({
           }
         }
       `}</style>
-    </div>
+    </BoothPageShell>
   );
 }

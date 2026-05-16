@@ -68,10 +68,10 @@ export function StripSavePage() {
           'linear-gradient(165deg, color-mix(in srgb, var(--background) 92%, #1a2e24) 0%, color-mix(in srgb, var(--background) 88%, #2a2438) 100%)',
       }}
     >
-      <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center gap-6 px-4 py-10">
+      <div className="mx-auto flex min-h-dvh max-w-lg flex-col items-center gap-5 px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:gap-6 sm:py-10">
         <header className="text-center">
-          <h1 className="text-3xl">Your photo strip</h1>
-          <p className="mt-2 text-lg text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl">Your photo strip</h1>
+          <p className="mt-2 text-base text-muted-foreground sm:text-lg">
             {loadState === 'ready'
               ? 'Save it to your camera roll or share it with friends.'
               : loadState === 'loading'
